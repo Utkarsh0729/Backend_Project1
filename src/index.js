@@ -1,7 +1,7 @@
 // require("dotenv").config({path: './env'});
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
-import express from "express";
+import {app} from "./app.js";
 
 // you have to configure dotenv to use the .env file in the beginning of your application
 // also make modifications in package.json->"-r dotenv/config --experimental-json-modules"
@@ -9,15 +9,9 @@ dotenv.config({
     path: "./env"
 });
 
-const app = express();
 
 connectDB()
 .then(() => {
-    app.on("error", (error) => {
-        console.log("ERROR: ", error)
-        throw error 
-    })
-
     app.listen(process.env.PORT || 8000, () => {
         console.log(`Server is running on port-> ${process.env.PORT}`)
     })
