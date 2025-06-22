@@ -6,7 +6,7 @@ import {app} from "./app.js";
 // you have to configure dotenv to use the .env file in the beginning of your application
 // also make modifications in package.json->"-r dotenv/config --experimental-json-modules"
 dotenv.config({
-    path: "./env"
+    path: "./.env"
 });
 
 

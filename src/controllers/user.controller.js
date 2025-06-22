@@ -18,7 +18,6 @@ const registerUser = asyncHandler(async (req, res) => {
     
     // 1. get user details from frontend
     const {fullname, username, email, password} = req.body;
-    console.log("email :", email);
 
     // 2. validation of user details
     // if any of the fields are empty, throw an error
@@ -39,16 +38,25 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // 4. check for images, avatar
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
-
-    if(!avatarLocalPath) {
+    let avatarLocalPath = null;
+    if(Array.isArray(req.files.avatar) && req.files?.avatar.length > 0) {
+        avatarLocalPath = req.files?.avatar[0]?.path;
+    }
+    else {
         throw new ApiError(400, "Avatar image is required");
     }
+    // check for cover image
+    // cover image is optional, so it can be null
+    let coverImageLocalPath = null;
+    if(Array.isArray(req.files?.coverImage) && req.files?.coverImage.length > 0) {
+        coverImageLocalPath = req.files?.coverImage[0]?.path;
+    }
+
 
     // 5. upload them to cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    let coverImage = null;
+    if(coverImageLocalPath) coverImage = await uploadOnCloudinary(coverImageLocalPath);
     // check if avatar and cover image are uploaded successfully
     if(!avatar) {
         throw new ApiError(500, "Failed to upload avatar image");
@@ -57,7 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     //6. create user object - create entry in db
     const user = await User.create( {
-        fullName,
+        fullName: fullname.trim(),
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
         password,
